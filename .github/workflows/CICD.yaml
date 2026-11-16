@@ -28,7 +28,7 @@ env:
 
 jobs:
   Initialization:
-    needs: [ ]
+    needs: [ CustomJob-TemplateInit ]
     runs-on: [ windows-latest ]
     outputs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
@@ -424,7 +424,7 @@ jobs:
           artifacts: '.artifacts'
 
   PostProcess:
-    needs: [ Initialization, Build, BuildPP, Deploy, Deliver, DeployALDoc, CodeAnalysisUpload ]
+    needs: [ Initialization, Build, BuildPP, Deploy, Deliver, DeployALDoc, CodeAnalysisUpload, CustomJob-TemplateDeploy ]
     if: (!cancelled())
     runs-on: [ windows-latest ]
     steps:
@@ -440,3 +440,26 @@ jobs:
           shell: powershell
           telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
           currentJobContext: ${{ toJson(job) }}
+
+  CustomJob-TemplateInit:
+    runs-on: [ windows-latest ]
+    steps:
+      - name: Init
+        run: |
+          Write-Host 'CustomJob-TemplateInit was here!'
+
+  CustomJob-TemplateDeploy:
+    needs: [ Initialization, Build ]
+    runs-on: [ windows-latest ]
+    steps:
+      - name: Deploy
+        run: |
+          Write-Host 'CustomJob-TemplateDeploy was here!'
+
+  JustSomeTemplateJob:
+    needs: [ PostProcess ]
+    runs-on: [ windows-latest ]
+    steps:
+      - name: JustSomeTemplateStep
+        run: |
+          Write-Host 'JustSomeTemplateJob was here!'
